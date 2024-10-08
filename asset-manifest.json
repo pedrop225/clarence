@@ -1,0 +1,15 @@
+{
+  "files": {
+    "main.css": "/clarence/static/css/main.79d19d76.css",
+    "main.js": "/clarence/static/js/main.3b77a3b9.js",
+    "static/js/453.41863475.chunk.js": "/clarence/static/js/453.41863475.chunk.js",
+    "index.html": "/clarence/index.html",
+    "main.79d19d76.css.map": "/clarence/static/css/main.79d19d76.css.map",
+    "main.3b77a3b9.js.map": "/clarence/static/js/main.3b77a3b9.js.map",
+    "453.41863475.chunk.js.map": "/clarence/static/js/453.41863475.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.79d19d76.css",
+    "static/js/main.3b77a3b9.js"
+  ]
+}
