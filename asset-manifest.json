@@ -1,8 +1,7 @@
 {
   "files": {
     "main.css": "/clarence/static/css/main.59c4c5ba.css",
-    "main.js": "/clarence/static/js/main.e4b7863c.js",
-    "static/media/background.jpeg": "/clarence/static/media/background.88da9d0c690b08a5c225.jpeg",
+    "main.js": "/clarence/static/js/main.84202539.js",
     "static/media/roboto-latin-400-normal.woff2": "/clarence/static/media/roboto-latin-400-normal.297d48e1b5a10c0831a9.woff2",
     "static/media/roboto-latin-400-normal.woff": "/clarence/static/media/roboto-latin-400-normal.047a7839f69b209db815.woff",
     "static/media/roboto-cyrillic-ext-400-normal.woff2": "/clarence/static/media/roboto-cyrillic-ext-400-normal.5cec61a21cc20180fbe1.woff2",
@@ -15,15 +14,14 @@
     "static/media/roboto-greek-400-normal.woff": "/clarence/static/media/roboto-greek-400-normal.160a791a8e4f46bca3cc.woff",
     "static/media/roboto-vietnamese-400-normal.woff2": "/clarence/static/media/roboto-vietnamese-400-normal.d3f8e26d6c27de8102b6.woff2",
     "static/media/roboto-vietnamese-400-normal.woff": "/clarence/static/media/roboto-vietnamese-400-normal.0dc97c66f9b542d6fa17.woff",
-    "static/media/logo.svg": "/clarence/static/media/logo.6ce24c58023cc2f8fd88fe9d219db6c6.svg",
     "static/media/roboto-greek-ext-400-normal.woff2": "/clarence/static/media/roboto-greek-ext-400-normal.1df4abad55796d11a0c8.woff2",
     "static/media/roboto-greek-ext-400-normal.woff": "/clarence/static/media/roboto-greek-ext-400-normal.16eb83b4a3b1ea994243.woff",
     "index.html": "/clarence/index.html",
     "main.59c4c5ba.css.map": "/clarence/static/css/main.59c4c5ba.css.map",
-    "main.e4b7863c.js.map": "/clarence/static/js/main.e4b7863c.js.map"
+    "main.84202539.js.map": "/clarence/static/js/main.84202539.js.map"
   },
   "entrypoints": [
     "static/css/main.59c4c5ba.css",
-    "static/js/main.e4b7863c.js"
+    "static/js/main.84202539.js"
   ]
 }
