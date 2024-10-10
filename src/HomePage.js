@@ -47,6 +47,8 @@ function HomePage() {
         const agentNames = jsonData.map(item => item['Agente']).filter(Boolean);
         setAgentNames(agentNames); // Establecer los nombres en el contexto
 
+        console.log(map.size());
+
         setLoading(false);
         setSnackbarMessage('Archivo cargado exitosamente.');
         setSnackbarSeverity('success');
