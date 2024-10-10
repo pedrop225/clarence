@@ -44,10 +44,8 @@ function HomePage() {
         const jsonData = XLSX.utils.sheet_to_json(worksheet);
         
         // Extraer los nombres de los agentes
-        const agentNames = jsonData.map(item => item['Agente']).filter(Boolean);
+        const agentNames = jsonData.map(item => item['AGENTE']).filter(Boolean);
         setAgentNames(agentNames); // Establecer los nombres en el contexto
-
-        console.log(map.size());
 
         setLoading(false);
         setSnackbarMessage('Archivo cargado exitosamente.');
