@@ -15,12 +15,17 @@ import {
   Button,
   IconButton,
   CircularProgress,
+  Grid,
+  MenuItem,
+  Select,
+  InputLabel,
+  FormControl,
 } from '@mui/material';
 import { Brightness4, Brightness7 } from '@mui/icons-material';
 import { useDataContext } from './DataContext';
 
 function AnalysisPage() {
-  const { agentData } = useDataContext();
+  const { agentData } = useDataContext(); // Datos de los agentes
   const [rows, setRows] = useState([]);
   const [filteredRows, setFilteredRows] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
@@ -28,35 +33,40 @@ function AnalysisPage() {
   const [selectedAgent, setSelectedAgent] = useState(null);
   const [openModal, setOpenModal] = useState(false);
   const [darkMode, setDarkMode] = useState(false);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(true); // Para indicación de carga
+  const [filters, setFilters] = useState({
+    tipo: '', // Filtro personalizado para "TIPO"
+    inspNombre: '', // Filtro personalizado para "INSP. NOMBRE"
+  });
 
   const rowsPerPage = 10;
 
+  // Tema oscuro/claro
   const handleThemeToggle = () => {
     setDarkMode((prev) => !prev);
   };
 
   useEffect(() => {
-    const agentsWithIds = agentData.map((agent) => ({
-      cod: agent.cod || 'N/A',
-      agentName: agent.agentName || 'Sin nombre',
-      details: `Detalles del agente ${agent.agentName}`,
-    }));
+    // Simulación de carga de datos
+    setTimeout(() => {
+      const agentsWithIds = agentData.map((agent) => ({
+        cod: agent.cod || 'N/A',
+        agentName: agent.agentName || 'Sin nombre',
+        tipo: agent.tipo || 'Desconocido', // Columna "TIPO"
+        inspNombre: agent.inspNombre || 'Desconocido', // Columna "INSP. NOMBRE"
+        details: `Detalles del agente ${agent.agentName}`,
+      }));
 
-    setRows(agentsWithIds);
-    setFilteredRows(agentsWithIds);
-    setLoading(false);
+      setRows(agentsWithIds);
+      setFilteredRows(agentsWithIds);
+      setLoading(false); // Fin de la carga
+    }, 1500);
   }, [agentData]);
 
   const handleSearch = (event) => {
     const query = event.target.value.toLowerCase();
     setSearchQuery(query);
-    const filtered = rows.filter(
-      (row) =>
-        row.agentName.toLowerCase().includes(query) || row.cod.toLowerCase().includes(query)
-    );
-    setFilteredRows(filtered);
-    setPage(1);
+    applyFilters(query, filters);
   };
 
   const handleChangePage = (event, value) => {
@@ -73,21 +83,23 @@ function AnalysisPage() {
     setSelectedAgent(null);
   };
 
-  const handleSort = (column) => {
-    const sortedRows = [...filteredRows].sort((a, b) => {
-      if (a[column] < b[column]) return -1;
-      if (a[column] > b[column]) return 1;
-      return 0;
+  // Aplicar filtros avanzados y búsqueda
+  const applyFilters = (query, filters) => {
+    const filtered = rows.filter((row) => {
+      const matchesQuery = row.agentName.toLowerCase().includes(query) || row.cod.toLowerCase().includes(query);
+      const matchesTipo = filters.tipo ? row.tipo === filters.tipo : true;
+      const matchesInspNombre = filters.inspNombre ? row.inspNombre === filters.inspNombre : true;
+      return matchesQuery && matchesTipo && matchesInspNombre;
     });
-    setFilteredRows(sortedRows);
+    setFilteredRows(filtered);
+    setPage(1);
   };
 
-  const cellStyle = (darkMode) => ({
-    fontWeight: 'bold',
-    fontSize: '16px',
-    color: darkMode ? '#fff' : '#000',
-    borderBottom: `1px solid ${darkMode ? '#555' : '#ddd'}`,
-  });
+  const handleFilterChange = (event) => {
+    const { name, value } = event.target;
+    setFilters((prev) => ({ ...prev, [name]: value }));
+    applyFilters(searchQuery, { ...filters, [name]: value });
+  };
 
   return (
     <Box
@@ -96,183 +108,232 @@ function AnalysisPage() {
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
-        justifyContent: 'flex-start',
+        justifyContent: 'center',
         padding: 3,
-        backgroundColor: darkMode ? '#121212' : '#f5f5f5',
-        color: darkMode ? '#fff' : '#000',
+        backgroundColor: darkMode ? '#181818' : '#f9f9f9', // Fondo más oscuro
+        color: darkMode ? '#e0e0e0' : '#000', // Texto gris claro para modo oscuro
         transition: 'background-color 0.5s ease',
       }}
     >
-      <IconButton
-        onClick={handleThemeToggle}
-        sx={{
-          position: 'absolute',
-          top: 20,
-          right: 20,
-          color: darkMode ? '#f1c40f' : '#673ab7',
-        }}
-      >
-        {darkMode ? <Brightness7 /> : <Brightness4 />}
-      </IconButton>
-
-      <Typography
-        variant="h4"
-        sx={{
-          marginBottom: 3,
-          fontFamily: 'Poppins, sans-serif',
-          fontWeight: 600,
-          color: darkMode ? '#f1c40f' : '#673ab7',
-        }}
-      >
-        Análisis de Agentes
-      </Typography>
-
-      <TextField
-        label="Buscar Agente o Código"
-        variant="outlined"
-        value={searchQuery}
-        onChange={handleSearch}
-        sx={{
-          marginBottom: 3,
-          width: '100%',
-          maxWidth: 700,
-          backgroundColor: darkMode ? '#333' : '#fff',
-          borderRadius: '8px',
-          input: { color: darkMode ? '#fff' : '#000' },
-        }}
-      />
-
-      {loading ? (
-        <CircularProgress sx={{ margin: '20px' }} />
-      ) : (
-        <Paper
-          sx={{
-            width: '100%',
-            maxWidth: 800, // Ajuste del ancho máximo de la tabla
-            boxShadow: darkMode ? '0 8px 30px rgba(255, 255, 255, 0.2)' : '0 8px 30px rgba(0, 0, 0, 0.2)',
-            borderRadius: '15px',
-            overflow: 'hidden',
-            backgroundColor: darkMode ? '#333' : '#fff',
-          }}
-        >
-          <TableContainer sx={{ maxHeight: 400 }}>
-            <Table stickyHeader>
-              <TableHead>
-                <TableRow>
-                  <TableCell
-                    sx={{
-                      ...cellStyle(darkMode),
-                      backgroundColor: darkMode ? '#444' : '#f5f5f5',
-                      cursor: 'pointer',
-                    }}
-                    onClick={() => handleSort('cod')}
-                  >
-                    COD.
-                  </TableCell>
-                  <TableCell
-                    sx={{
-                      ...cellStyle(darkMode),
-                      backgroundColor: darkMode ? '#444' : '#f5f5f5',
-                      cursor: 'pointer',
-                    }}
-                    onClick={() => handleSort('agentName')}
-                  >
-                    Nombre del Agente
-                  </TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {filteredRows.length > 0 ? (
-                  filteredRows
-                    .slice((page - 1) * rowsPerPage, page * rowsPerPage)
-                    .map((row) => (
-                      <TableRow
-                        key={row.cod}
-                        sx={{
-                          transition: 'background-color 0.3s',
-                          '&:hover': {
-                            backgroundColor: darkMode ? 'rgba(255, 193, 7, 0.2)' : 'rgba(94, 23, 235, 0.15)',
-                            cursor: 'pointer',
-                          },
-                        }}
-                        onClick={() => handleOpenModal(row)}
-                      >
-                        <TableCell sx={{ color: darkMode ? '#fff' : '#000' }}>{row.cod}</TableCell>
-                        <TableCell sx={{ color: darkMode ? '#fff' : '#000' }}>{row.agentName}</TableCell>
-                      </TableRow>
-                    ))
-                ) : (
-                  <TableRow>
-                    <TableCell colSpan={2} align="center" sx={{ color: darkMode ? '#fff' : '#000' }}>
-                      No se encontraron agentes.
-                    </TableCell>
-                  </TableRow>
-                )}
-              </TableBody>
-            </Table>
-          </TableContainer>
-        </Paper>
+      {/* Indicador de carga */}
+      {loading && (
+        <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+          <CircularProgress color="primary" />
+        </Box>
       )}
 
-      <Pagination
-        count={Math.ceil(filteredRows.length / rowsPerPage)}
-        page={page}
-        onChange={handleChangePage}
-        sx={{
-          marginTop: 3,
-          button: {
-            color: darkMode ? '#fff' : '#000',
-            '&:hover': {
-              backgroundColor: darkMode ? 'rgba(255, 193, 7, 0.1)' : 'rgba(94, 23, 235, 0.1)',
-            },
-          },
-        }}
-      />
+      {!loading && (
+        <>
+          {/* Tema */}
+          <IconButton
+            onClick={handleThemeToggle}
+            sx={{
+              position: 'absolute',
+              top: 20,
+              right: 20,
+              color: darkMode ? '#f1c40f' : '#673ab7', // Amarillo para modo oscuro, púrpura para claro
+            }}
+          >
+            {darkMode ? <Brightness7 /> : <Brightness4 />}
+          </IconButton>
 
-      <Modal
-        open={openModal}
-        onClose={handleCloseModal}
-        aria-labelledby="agent-details-modal"
-        aria-describedby="agent-details-description"
-      >
-        <Box
-          sx={{
-            position: 'absolute',
-            top: '50%',
-            left: '50%',
-            transform: 'translate(-50%, -50%)',
-            width: 400,
-            bgcolor: darkMode ? '#333' : '#fff',
-            borderRadius: 2,
-            boxShadow: 24,
-            p: 4,
-            textAlign: 'center',
-            color: darkMode ? '#fff' : '#000',
-          }}
-        >
-          <Typography id="agent-details-modal" variant="h6" component="h2" gutterBottom>
-            Detalles del Agente
+          <Typography
+            variant="h4"
+            sx={{
+              marginBottom: 3,
+              fontFamily: 'Poppins, sans-serif',
+              fontWeight: 600,
+              color: darkMode ? '#f1c40f' : '#673ab7', // Amarillo suave en modo oscuro
+            }}
+          >
+            Análisis de Agentes
           </Typography>
-          {selectedAgent ? (
-            <>
-              <Typography variant="body1" gutterBottom>
-                <strong>Nombre:</strong> {selectedAgent.agentName}
-              </Typography>
-              <Typography variant="body1" gutterBottom>
-                <strong>Código:</strong> {selectedAgent.cod}
-              </Typography>
-              <Typography variant="body1" gutterBottom>
-                <strong>Detalles:</strong> {selectedAgent.details}
-              </Typography>
-            </>
-          ) : (
-            <Typography variant="body1">No hay detalles disponibles.</Typography>
-          )}
-          <Button onClick={handleCloseModal} variant="contained" sx={{ mt: 3 }}>
-            Cerrar
-          </Button>
-        </Box>
-      </Modal>
+
+          {/* Filtros avanzados */}
+          <Grid container spacing={2} sx={{ maxWidth: 800, marginBottom: 2 }}>
+            <Grid item xs={12} sm={6}>
+              <TextField
+                label="Buscar Agente o Código"
+                variant="outlined"
+                value={searchQuery}
+                onChange={handleSearch}
+                sx={{
+                  width: '100%',
+                  backgroundColor: darkMode ? '#333' : '#fff', // Fondo oscuro para input
+                  input: { color: darkMode ? '#e0e0e0' : '#000' }, // Texto gris claro en modo oscuro
+                }}
+              />
+            </Grid>
+            {/* Filtro personalizado para 'TIPO' */}
+            <Grid item xs={12} sm={3}>
+              <FormControl fullWidth>
+                <InputLabel sx={{ color: darkMode ? '#e0e0e0' : '#000' }}>Tipo</InputLabel>
+                <Select
+                  label="Tipo"
+                  name="tipo"
+                  value={filters.tipo}
+                  onChange={handleFilterChange}
+                  sx={{ backgroundColor: darkMode ? '#333' : '#fff', color: darkMode ? '#e0e0e0' : '#000' }}
+                >
+                  <MenuItem value="">Todos</MenuItem>
+                  <MenuItem value="Tipo A">Tipo A</MenuItem>
+                  <MenuItem value="Tipo B">Tipo B</MenuItem>
+                </Select>
+              </FormControl>
+            </Grid>
+            {/* Filtro personalizado para 'INSP. NOMBRE' */}
+            <Grid item xs={12} sm={3}>
+              <FormControl fullWidth>
+                <InputLabel sx={{ color: darkMode ? '#e0e0e0' : '#000' }}>Insp. Nombre</InputLabel>
+                <Select
+                  label="Insp. Nombre"
+                  name="inspNombre"
+                  value={filters.inspNombre}
+                  onChange={handleFilterChange}
+                  sx={{ backgroundColor: darkMode ? '#333' : '#fff', color: darkMode ? '#e0e0e0' : '#000' }}
+                >
+                  <MenuItem value="">Todos</MenuItem>
+                  <MenuItem value="Inspector 1">Inspector 1</MenuItem>
+                  <MenuItem value="Inspector 2">Inspector 2</MenuItem>
+                </Select>
+              </FormControl>
+            </Grid>
+          </Grid>
+
+          {/* Tabla de Agentes */}
+          <Paper
+            sx={{
+              width: '100%',
+              maxWidth: 800,
+              boxShadow: darkMode ? '0 8px 30px rgba(255, 255, 255, 0.1)' : '0 8px 30px rgba(0, 0, 0, 0.2)', // Suave en oscuro
+              borderRadius: '15px',
+              overflow: 'hidden',
+              backgroundColor: darkMode ? '#252525' : '#fff', // Fondo de la tabla más oscuro
+            }}
+          >
+            <TableContainer sx={{ maxHeight: 400 }}>
+              <Table stickyHeader>
+                <TableHead>
+                  <TableRow>
+                    <TableCell
+                      sx={{
+                        fontWeight: 'bold',
+                        fontSize: '16px',
+                        backgroundColor: darkMode ? '#333' : '#f5f5f5',
+                        color: darkMode ? '#e0e0e0' : '#000', // Texto claro en oscuro
+                      }}
+                    >
+                      Código
+                    </TableCell>
+                    <TableCell
+                      sx={{
+                        fontWeight: 'bold',
+                        fontSize: '16px',
+                        backgroundColor: darkMode ? '#333' : '#f5f5f5',
+                        color: darkMode ? '#e0e0e0' : '#000',
+                      }}
+                    >
+                      Nombre del Agente
+                    </TableCell>
+                    <TableCell
+                      sx={{
+                        fontWeight: 'bold',
+                        fontSize: '16px',
+                        backgroundColor: darkMode ? '#333' : '#f5f5f5',
+                        color: darkMode ? '#e0e0e0' : '#000',
+                      }}
+                    >
+                      Tipo
+                    </TableCell>
+                    <TableCell
+                      sx={{
+                        fontWeight: 'bold',
+                        fontSize: '16px',
+                        backgroundColor: darkMode ? '#333' : '#f5f5f5',
+                        color: darkMode ? '#e0e0e0' : '#000',
+                      }}
+                    >
+                      Insp. Nombre
+                    </TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {filteredRows.length > 0 ? (
+                    filteredRows
+                      .slice((page - 1) * rowsPerPage, page * rowsPerPage)
+                      .map((row) => (
+                        <TableRow
+                          key={row.cod}
+                          sx={{
+                            '&:hover': {
+                              backgroundColor: darkMode ? 'rgba(255, 193, 7, 0.2)' : 'rgba(94, 23, 235, 0.15)', // Hover suave
+                            },
+                            cursor: 'pointer',
+                          }}
+                          onClick={() => handleOpenModal(row)}
+                        >
+                          <TableCell sx={{ color: darkMode ? '#e0e0e0' : '#000' }}>{row.cod}</TableCell>
+                          <TableCell sx={{ color: darkMode ? '#e0e0e0' : '#000' }}>{row.agentName}</TableCell>
+                          <TableCell sx={{ color: darkMode ? '#e0e0e0' : '#000' }}>{row.tipo}</TableCell>
+                          <TableCell sx={{ color: darkMode ? '#e0e0e0' : '#000' }}>{row.inspNombre}</TableCell>
+                        </TableRow>
+                      ))
+                  ) : (
+                    <TableRow>
+                      <TableCell colSpan={4} align="center" sx={{ color: darkMode ? '#e0e0e0' : '#000' }}>
+                        No se encontraron agentes.
+                      </TableCell>
+                    </TableRow>
+                  )}
+                </TableBody>
+              </Table>
+            </TableContainer>
+
+            {/* Paginación */}
+            <Box sx={{ display: 'flex', justifyContent: 'center', padding: 2 }}>
+              <Pagination
+                count={Math.ceil(filteredRows.length / rowsPerPage)}
+                page={page}
+                onChange={handleChangePage}
+                color="primary"
+              />
+            </Box>
+          </Paper>
+
+          {/* Modal de Detalles del Agente */}
+          <Modal open={openModal} onClose={handleCloseModal}>
+            <Box
+              sx={{
+                backgroundColor: darkMode ? '#333' : '#fff',
+                color: darkMode ? '#fff' : '#000',
+                padding: 4,
+                maxWidth: 600,
+                margin: 'auto',
+                marginTop: '20vh',
+                borderRadius: '10px',
+                boxShadow: darkMode ? '0 4px 12px rgba(255, 255, 255, 0.2)' : '0 4px 12px rgba(0, 0, 0, 0.2)',
+              }}
+            >
+              {selectedAgent && (
+                <>
+                  <Typography variant="h6">{selectedAgent.agentName}</Typography>
+                  <Typography variant="body1">Código: {selectedAgent.cod}</Typography>
+                  <Typography variant="body2">Tipo: {selectedAgent.tipo}</Typography>
+                  <Typography variant="body2">Insp. Nombre: {selectedAgent.inspNombre}</Typography>
+                  <Typography variant="body2">{selectedAgent.details}</Typography>
+                  <Button
+                    variant="contained"
+                    onClick={handleCloseModal}
+                    sx={{ marginTop: 2, backgroundColor: darkMode ? '#f1c40f' : '#673ab7' }}
+                  >
+                    Cerrar
+                  </Button>
+                </>
+              )}
+            </Box>
+          </Modal>
+        </>
+      )}
     </Box>
   );
 }

@@ -48,6 +48,8 @@ function HomePage() {
           const agentData = jsonData.map(item => ({
             cod: item['COD.'],
             agentName: item['AGENTE'], // Cambia esto según tu estructura de datos
+            tipo: item['TIPO'],
+            inspNombre: item['INSP. NOMBRE'],
             // Puedes agregar más propiedades si lo necesitas
           })).filter(item => item.agentName); // Filtrar solo los nombres válidos
 
