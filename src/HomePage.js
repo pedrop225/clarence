@@ -46,6 +46,7 @@ function HomePage() {
           
           // Extraer los nombres de los agentes
           const agentData = jsonData.map(item => ({
+            cod: item['COD.'],
             agentName: item['AGENTE'], // Cambia esto según tu estructura de datos
             // Puedes agregar más propiedades si lo necesitas
           })).filter(item => item.agentName); // Filtrar solo los nombres válidos
