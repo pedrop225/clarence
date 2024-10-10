@@ -12,7 +12,7 @@ import { useDataContext } from './DataContext'; // Importar el hook del contexto
 
 function HomePage() {
   const navigate = useNavigate();
-  const { setAgentNames } = useDataContext(); // Usar el hook para acceder al contexto
+  const { setAgentData } = useDataContext(); // Usar el hook para acceder al contexto
   const [fileName, setFileName] = useState('');
   const [loading, setLoading] = useState(false);
   const [openSnackbar, setOpenSnackbar] = useState(false);
@@ -35,23 +35,33 @@ function HomePage() {
       const reader = new FileReader();
       
       reader.onload = (e) => {
-        const data = new Uint8Array(e.target.result);
-        const workbook = XLSX.read(data, { type: 'array' });
-        const firstSheetName = workbook.SheetNames[0];
-        const worksheet = workbook.Sheets[firstSheetName];
+        try {
+          const data = new Uint8Array(e.target.result);
+          const workbook = XLSX.read(data, { type: 'array' });
+          const firstSheetName = workbook.SheetNames[0];
+          const worksheet = workbook.Sheets[firstSheetName];
 
-        // Convertir el contenido de la hoja a JSON
-        const jsonData = XLSX.utils.sheet_to_json(worksheet);
-        
-        // Extraer los nombres de los agentes
-        const agentNames = jsonData.map(item => item['AGENTE']).filter(Boolean);
-        setAgentNames(agentNames); // Establecer los nombres en el contexto
+          // Convertir el contenido de la hoja a JSON
+          const jsonData = XLSX.utils.sheet_to_json(worksheet);
+          
+          // Extraer los nombres de los agentes
+          const agentData = jsonData.map(item => ({
+            agentName: item['AGENTE'], // Cambia esto según tu estructura de datos
+            // Puedes agregar más propiedades si lo necesitas
+          })).filter(item => item.agentName); // Filtrar solo los nombres válidos
 
-        setLoading(false);
-        setSnackbarMessage('Archivo cargado exitosamente.');
-        setSnackbarSeverity('success');
-        setOpenSnackbar(true);
-        navigate('/analysis'); // Navegar a la página de análisis
+          setAgentData(agentData); // Establecer los datos en el contexto
+
+          setSnackbarMessage('Archivo cargado exitosamente.');
+          setSnackbarSeverity('success');
+          navigate('/analysis'); // Navegar a la página de análisis
+        } catch (error) {
+          setSnackbarMessage('Error al procesar el archivo.');
+          setSnackbarSeverity('error');
+        } finally {
+          setLoading(false);
+          setOpenSnackbar(true);
+        }
       };
       
       reader.readAsArrayBuffer(file);

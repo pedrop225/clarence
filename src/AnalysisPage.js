@@ -16,19 +16,19 @@ import {
   IconButton,
 } from '@mui/material';
 import { Brightness4, Brightness7 } from '@mui/icons-material'; // Iconos para el botón de tema
-import { useDataContext } from './DataContext'; // Importar el hook del contexto
+import { useDataContext } from './DataContext'; // Asegúrate de la ruta correcta
 
 function AnalysisPage() {
-  const { agentNames } = useDataContext();
-  const [rows, setRows] = useState([]);
-  const [filteredRows, setFilteredRows] = useState([]);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [page, setPage] = useState(1);
-  const [selectedAgent, setSelectedAgent] = useState(null);
-  const [openModal, setOpenModal] = useState(false);
+  const { agentData } = useDataContext(); // Datos de los agentes
+  const [rows, setRows] = useState([]); // Filas de la tabla
+  const [filteredRows, setFilteredRows] = useState([]); // Filas filtradas
+  const [searchQuery, setSearchQuery] = useState(''); // Consulta de búsqueda
+  const [page, setPage] = useState(1); // Página actual
+  const [selectedAgent, setSelectedAgent] = useState(null); // Agente seleccionado
+  const [openModal, setOpenModal] = useState(false); // Control de modal
   const [darkMode, setDarkMode] = useState(false); // Estado para el modo noche
 
-  const rowsPerPage = 10;
+  const rowsPerPage = 10; // Filas por página
 
   // Lógica para alternar el tema claro y oscuro
   const handleThemeToggle = () => {
@@ -36,22 +36,23 @@ function AnalysisPage() {
   };
 
   useEffect(() => {
-    console.log('Nombres de Agentes:', agentNames);
-
-    const agentsWithIds = agentNames.map((name, index) => ({
-      id: index + 1,
-      agentName: name,
-      details: `Detalles del agente ${name}`,
+    // Crear las filas de la tabla basadas en los datos de los agentes
+    const agentsWithIds = agentData.map((agent) => ({
+      cod: agent.cod || 'N/A', // El código del agente que proviene del archivo Excel
+      agentName: agent.agentName || 'Sin nombre',
+      details: `Detalles del agente ${agent.agentName}`,
     }));
 
     setRows(agentsWithIds);
     setFilteredRows(agentsWithIds);
-  }, [agentNames]);
+  }, [agentData]);
 
   const handleSearch = (event) => {
     const query = event.target.value.toLowerCase();
     setSearchQuery(query);
-    const filtered = rows.filter((row) => row.agentName.toLowerCase().includes(query));
+    const filtered = rows.filter((row) =>
+      row.agentName.toLowerCase().includes(query) || row.cod.toLowerCase().includes(query) // Búsqueda por nombre o código
+    );
     setFilteredRows(filtered);
     setPage(1);
   };
@@ -103,7 +104,7 @@ function AnalysisPage() {
           marginBottom: 3,
           fontFamily: 'Poppins, sans-serif',
           fontWeight: 600,
-          color: darkMode ? '#f1c40f' : '#673ab7', // Ajustar el color según el tema
+          color: darkMode ? '#f1c40f' : '#673ab7',
         }}
       >
         Análisis de Agentes
@@ -111,7 +112,7 @@ function AnalysisPage() {
 
       {/* Barra de búsqueda */}
       <TextField
-        label="Buscar Agente"
+        label="Buscar Agente o Código"
         variant="outlined"
         value={searchQuery}
         onChange={handleSearch}
@@ -148,7 +149,7 @@ function AnalysisPage() {
                     color: darkMode ? '#fff' : '#000',
                   }}
                 >
-                  #
+                  COD.
                 </TableCell>
                 <TableCell
                   sx={{
@@ -166,9 +167,9 @@ function AnalysisPage() {
               {filteredRows.length > 0 ? (
                 filteredRows
                   .slice((page - 1) * rowsPerPage, page * rowsPerPage)
-                  .map((row, index) => (
+                  .map((row) => (
                     <TableRow
-                      key={row.id}
+                      key={row.cod} // Se usa el COD como identificador único
                       sx={{
                         transition: 'background-color 0.3s',
                         '&:hover': {
@@ -178,9 +179,7 @@ function AnalysisPage() {
                       }}
                       onClick={() => handleOpenModal(row)}
                     >
-                      <TableCell sx={{ color: darkMode ? '#fff' : '#000' }}>
-                        {(page - 1) * rowsPerPage + index + 1}
-                      </TableCell>
+                      <TableCell sx={{ color: darkMode ? '#fff' : '#000' }}>{row.cod}</TableCell>
                       <TableCell sx={{ color: darkMode ? '#fff' : '#000' }}>{row.agentName}</TableCell>
                     </TableRow>
                   ))
@@ -238,6 +237,9 @@ function AnalysisPage() {
             <>
               <Typography variant="body1" gutterBottom>
                 <strong>Nombre:</strong> {selectedAgent.agentName}
+              </Typography>
+              <Typography variant="body1" gutterBottom>
+                <strong>Código:</strong> {selectedAgent.cod}
               </Typography>
               <Typography variant="body1" gutterBottom>
                 <strong>Detalles:</strong> {selectedAgent.details}
