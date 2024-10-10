@@ -1,32 +1,62 @@
 import React, { useState } from 'react';
 import { Box, Button, Card, CardContent, Typography, Grid, CircularProgress, Snackbar } from '@mui/material';
 import UploadFileIcon from '@mui/icons-material/UploadFile';
-import CheckCircleIcon from '@mui/icons-material/CheckCircle'; // Icono de correcto
-import { motion } from 'framer-motion'; // Animaciones
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import ErrorIcon from '@mui/icons-material/Error';
+import { motion } from 'framer-motion'; 
 import BackgroundImage from './background.jpeg';
 import Logo from './logo.svg';
+import { useNavigate } from 'react-router-dom';
+import { useDataContext } from './DataContext'; // Importar el hook del contexto
 
 function HomePage() {
+  const navigate = useNavigate();
+  const { setAgentNames } = useDataContext(); // Usar el hook para acceder al contexto
   const [fileName, setFileName] = useState('');
   const [loading, setLoading] = useState(false);
   const [openSnackbar, setOpenSnackbar] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState('');
+  const [snackbarSeverity, setSnackbarSeverity] = useState('success');
 
   const handleFileUpload = (event) => {
     const file = event.target.files[0];
     if (file) {
+      const fileExtension = file.name.split('.').pop();
+      if (fileExtension !== 'xlsx') {
+        setSnackbarMessage('El archivo debe ser de tipo .xlsx');
+        setSnackbarSeverity('error');
+        setOpenSnackbar(true);
+        return;
+      }
+
       setFileName(file.name);
       setLoading(true);
+      const reader = new FileReader();
+      
+      reader.onload = (e) => {
+        const data = new Uint8Array(e.target.result);
+        const workbook = XLSX.read(data, { type: 'array' });
+        const firstSheetName = workbook.SheetNames[0];
+        const worksheet = workbook.Sheets[firstSheetName];
 
-      // Simulación de procesamiento del archivo XLSX
-      setTimeout(() => {
+        // Convertir el contenido de la hoja a JSON
+        const jsonData = XLSX.utils.sheet_to_json(worksheet);
+        
+        // Extraer los nombres de los agentes
+        const agentNames = jsonData.map(item => item['Agente']).filter(Boolean);
+        setAgentNames(agentNames); // Establecer los nombres en el contexto
+
         setLoading(false);
-        setOpenSnackbar(true); // Mostrar mensaje de éxito
-        console.log('Archivo seleccionado:', file);
-      }, 1500);
+        setSnackbarMessage('Archivo cargado exitosamente.');
+        setSnackbarSeverity('success');
+        setOpenSnackbar(true);
+        navigate('/analysis'); // Navegar a la página de análisis
+      };
+      
+      reader.readAsArrayBuffer(file);
     }
   };
 
-  // Función para cerrar el Snackbar
   const handleCloseSnackbar = () => {
     setOpenSnackbar(false);
   };
@@ -40,13 +70,12 @@ function HomePage() {
         alignItems: 'center',
         justifyContent: 'center',
         padding: 3,
-        overflow: 'hidden', // Para evitar que los elementos se salgan de los límites
+        overflow: 'hidden',
       }}
     >
-      {/* Imagen de fondo con animación */}
       <motion.div
         initial={{ scale: 1 }}
-        animate={{ scale: 1.05 }} // Efecto de zoom suave en la imagen de fondo
+        animate={{ scale: 1.05 }}
         transition={{
           duration: 10,
           repeat: Infinity,
@@ -62,11 +91,10 @@ function HomePage() {
           backgroundImage: `url(${BackgroundImage})`,
           backgroundSize: 'cover',
           backgroundPosition: 'center',
-          zIndex: -2, // Mantener la imagen de fondo detrás de todos los elementos
+          zIndex: -2,
         }}
       />
 
-      {/* Capa de transparencia sobre el fondo */}
       <Box
         sx={{
           position: 'absolute',
@@ -74,177 +102,146 @@ function HomePage() {
           left: 0,
           width: '100%',
           height: '100%',
-          backgroundColor: 'rgba(0, 0, 0, 0.5)', // Transparencia ajustada
+          backgroundColor: 'rgba(0, 0, 0, 0.5)',
           zIndex: -1,
         }}
       />
 
-      {/* Contenedor principal */}
       <Grid
         container
         spacing={2}
         sx={{
-          maxWidth: 1200, // Limitar el ancho máximo
+          maxWidth: 1200,
           justifyContent: 'center',
           alignItems: 'center',
-          minHeight: 'calc(100vh - 100px)', // Espacio para el footer sin hacer scroll
+          minHeight: 'calc(100vh - 100px)',
         }}
       >
-        {/* Tarjeta secundaria izquierda */}
         <Grid item xs={12} md={4}>
-          <motion.div
-            initial={{ opacity: 0, x: -30 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.5, duration: 1 }} // Animación más lenta
+          <Card
+            sx={{
+              padding: 2,
+              backgroundColor: 'rgba(255, 255, 255, 0.8)',
+              borderRadius: '15px',
+              backdropFilter: 'blur(8px)',
+              boxShadow: '0 4px 20px rgba(0, 0, 0, 0.1)',
+              transition: '0.3s',
+              '&:hover': { transform: 'scale(1.05)' },
+            }}
           >
-            <Card
-              sx={{
-                padding: 2,
-                backgroundColor: 'rgba(255, 255, 255, 0.8)',
-                borderRadius: '15px',
-                backdropFilter: 'blur(8px)', // Filtro de desenfoque
-                transition: 'transform 0.3s ease, box-shadow 0.3s ease',
-                '&:hover': {
-                  transform: 'translateY(-5px) scale(1.03)', // Efecto de hover
-                  boxShadow: '0 16px 32px rgba(31, 38, 135, 0.6)',
-                },
-              }}
-            >
-              <CardContent>
-                <Typography variant="h6" sx={{ fontFamily: 'Poppins, sans-serif' }}>
-                  Análisis rápido
-                </Typography>
-                <Typography variant="body2">
-                  Realiza análisis instantáneos de tus datos con un solo clic.
-                </Typography>
-              </CardContent>
-            </Card>
-          </motion.div>
+            <CardContent>
+              <Typography variant="h6" sx={{ fontFamily: 'Poppins, sans-serif' }}>
+                Análisis rápido
+              </Typography>
+              <Typography variant="body2">
+                Realiza análisis instantáneos de tus datos con un solo clic.
+              </Typography>
+            </CardContent>
+          </Card>
         </Grid>
 
-        {/* Tarjeta principal */}
         <Grid item xs={12} md={4}>
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
+          <Card
+            sx={{
+              padding: 4,
+              backgroundColor: 'rgba(255, 255, 255, 0.9)',
+              borderRadius: '15px',
+              backdropFilter: 'blur(8px)',
+              boxShadow: '0 4px 20px rgba(0, 0, 0, 0.1)',
+              transition: '0.3s',
+              '&:hover': { transform: 'scale(1.05)' },
+            }}
           >
-            <Card
-              sx={{
-                padding: 4,
-                backgroundColor: 'rgba(255, 255, 255, 0.9)', // Transparencia en la tarjeta
-                borderRadius: '15px',
-                backdropFilter: 'blur(8px)', // Filtro de desenfoque
-                transition: 'transform 0.3s ease, box-shadow 0.3s ease',
-                '&:hover': {
-                  transform: 'translateY(-5px)',
-                  boxShadow: '0 16px 32px rgba(31, 38, 135, 0.6)',
-                },
-              }}
-            >
-              <CardContent sx={{ textAlign: 'center' }}>
-                {/* Logo con animación */}
-                <motion.img
-                  src={Logo}
-                  alt="Logo de Clarence"
-                  style={{ width: 100, marginBottom: 20 }}
-                  initial={{ opacity: 0, rotate: -10, scale: 0.8 }}
-                  animate={{ opacity: 1, rotate: 0, scale: 1 }}
-                  transition={{ duration: 0.8, ease: "easeOut" }}
+            <CardContent sx={{ textAlign: 'center' }}>
+              <motion.img
+                src={Logo}
+                alt="Logo de Clarence"
+                style={{ width: 100, marginBottom: 20 }}
+                initial={{ rotate: 0 }}
+                animate={{ rotate: 360 }}
+                transition={{ duration: 4, repeat: Infinity, ease: "linear" }} // Logo giratorio más lento
+              />
+
+              <Typography variant="h4" gutterBottom sx={{ fontFamily: 'Poppins, sans-serif', fontWeight: 600 }}>
+                Bienvenido a Clarence
+              </Typography>
+              <Typography variant="body1" gutterBottom sx={{ fontFamily: 'Poppins, sans-serif' }}>
+                Carga tu archivo XLSX para comenzar el análisis.
+              </Typography>
+
+              <Button
+                variant="contained"
+                component="label"
+                startIcon={loading ? <CircularProgress size={20} /> : <UploadFileIcon />}
+                sx={{
+                  mt: 2,
+                  textTransform: 'none',
+                  borderRadius: 2,
+                  backgroundColor: '#5e17eb',
+                  '&:hover': { backgroundColor: '#4712b9' },
+                }}
+                disabled={loading}
+              >
+                {loading ? 'Cargando...' : fileName ? `Archivo: ${fileName}` : 'Cargar archivo XLSX'}
+                <input
+                  type="file"
+                  accept=".xlsx"
+                  hidden
+                  onChange={handleFileUpload}
                 />
-
-                {/* Texto de bienvenida */}
-                <Typography
-                  variant="h4"
-                  gutterBottom
-                  sx={{ fontFamily: 'Poppins, sans-serif', fontWeight: 600 }}
-                >
-                  Bienvenido a Clarence
-                </Typography>
-                <Typography variant="body1" gutterBottom sx={{ fontFamily: 'Poppins, sans-serif' }}>
-                  Carga tu archivo XLSX para comenzar el análisis.
-                </Typography>
-
-                {/* Botón para cargar archivo XLSX */}
-                <Button
-                  variant="contained"
-                  component="label"
-                  startIcon={loading ? <CircularProgress size={20} /> : <UploadFileIcon />}
-                  sx={{
-                    mt: 2,
-                    textTransform: 'none',
-                    borderRadius: 2,
-                    backgroundColor: '#5e17eb',
-                    '&:hover': { backgroundColor: '#4712b9' },
-                  }}
-                  disabled={loading}
-                >
-                  {loading ? 'Cargando...' : fileName ? `Archivo: ${fileName}` : 'Cargar archivo XLSX'}
-                  <input
-                    type="file"
-                    accept=".xlsx" // Aceptar solo archivos XLSX
-                    hidden
-                    onChange={handleFileUpload}
-                  />
-                </Button>
-              </CardContent>
-            </Card>
-          </motion.div>
+              </Button>
+            </CardContent>
+          </Card>
         </Grid>
 
-        {/* Tarjeta secundaria derecha */}
         <Grid item xs={12} md={4}>
-          <motion.div
-            initial={{ opacity: 0, x: 30 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.5, duration: 1 }} // Animación más lenta
+          <Card
+            sx={{
+              padding: 2,
+              backgroundColor: 'rgba(255, 255, 255, 0.8)',
+              borderRadius: '15px',
+              backdropFilter: 'blur(8px)',
+              boxShadow: '0 4px 20px rgba(0, 0, 0, 0.1)',
+              transition: '0.3s',
+              '&:hover': { transform: 'scale(1.05)' },
+            }}
           >
-            <Card
-              sx={{
-                padding: 2,
-                backgroundColor: 'rgba(255, 255, 255, 0.8)',
-                borderRadius: '15px',
-                backdropFilter: 'blur(8px)', // Filtro de desenfoque
-                transition: 'transform 0.3s ease, box-shadow 0.3s ease',
-                '&:hover': {
-                  transform: 'translateY(-5px) scale(1.03)', // Efecto de hover
-                  boxShadow: '0 16px 32px rgba(31, 38, 135, 0.6)',
-                },
-              }}
-            >
-              <CardContent>
-                <Typography variant="h6" sx={{ fontFamily: 'Poppins, sans-serif' }}>
-                  Exportación en PDF
-                </Typography>
-                <Typography variant="body2">
-                  Genera informes de tus datos en formato PDF de manera sencilla.
-                </Typography>
-              </CardContent>
-            </Card>
-          </motion.div>
+            <CardContent>
+              <Typography variant="h6" sx={{ fontFamily: 'Poppins, sans-serif' }}>
+                Soporte
+              </Typography>
+              <Typography variant="body2">
+                Si tienes alguna pregunta, contáctanos a través de nuestro soporte.
+              </Typography>
+            </CardContent>
+          </Card>
         </Grid>
       </Grid>
 
-      {/* Snackbar para mostrar mensaje de éxito */}
       <Snackbar
         open={openSnackbar}
-        autoHideDuration={3000}
+        autoHideDuration={4000}
         onClose={handleCloseSnackbar}
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }} // Posición del Snackbar
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}
         message={
           <Box
             sx={{
               display: 'flex',
               alignItems: 'center',
-              height: 40, // Reducir altura del Snackbar
-              backgroundColor: 'rgba(76, 175, 80, 0.7)', // Color verde con transparencia
-              borderRadius: 2,
-              padding: 1,
+              backgroundColor: snackbarSeverity === 'success' ? 'rgba(76, 175, 80, 0.7)' : 'rgba(244, 67, 54, 0.7)',
+              padding: '10px 20px',
+              borderRadius: '5px',
+              boxShadow: 'none',
+              height: '40px',
             }}
           >
-            <CheckCircleIcon sx={{ color: 'white', fontSize: 24 }} /> {/* Icono de correcto en blanco */}
+            {snackbarSeverity === 'success' ? (
+              <CheckCircleIcon sx={{ color: 'white', marginRight: 1 }} />
+            ) : (
+              <ErrorIcon sx={{ color: 'white', marginRight: 1 }} />
+            )}
             <Typography
-              variant="body1"
+              variant="body2"
               sx={{
                 color: 'white',
                 marginLeft: 1,
@@ -252,30 +249,26 @@ function HomePage() {
                 fontWeight: 'bold',
               }}
             >
-              Archivo cargado exitosamente.
+              {snackbarMessage}
             </Typography>
           </Box>
         }
       />
 
-      {/* Footer */}
       <Box
         sx={{
           position: 'absolute',
           bottom: 0,
           left: 0,
           width: '100%',
-          backgroundColor: 'rgba(255, 255, 255, 0.8)', // Fondo del footer
-          padding: 1, // Reducir altura del footer
+          backgroundColor: 'rgba(255, 255, 255, 0.8)',
           textAlign: 'center',
+          padding: '10px 0',
+          fontFamily: 'Poppins, sans-serif',
+          fontWeight: 'bold',
         }}
       >
-        <Typography variant="body2" color="textSecondary">
-          © {new Date().getFullYear()} Clarence. Todos los derechos reservados.
-        </Typography>
-        <Typography variant="body2" color="textSecondary">
-          Creado por Tu Nombre
-        </Typography>
+        &copy; {new Date().getFullYear()} Clarence. Todos los derechos reservados.
       </Box>
     </Box>
   );
