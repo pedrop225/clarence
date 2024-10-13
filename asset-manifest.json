@@ -1,7 +1,9 @@
 {
   "files": {
     "main.css": "/clarence/static/css/main.5e8752d8.css",
-    "main.js": "/clarence/static/js/main.54348350.js",
+    "main.js": "/clarence/static/js/main.3403127a.js",
+    "static/js/213.9a3efbe2.chunk.js": "/clarence/static/js/213.9a3efbe2.chunk.js",
+    "static/js/732.ce040012.chunk.js": "/clarence/static/js/732.ce040012.chunk.js",
     "static/media/background.jpeg": "/clarence/static/media/background.88da9d0c690b08a5c225.jpeg",
     "static/media/roboto-latin-400-normal.woff2": "/clarence/static/media/roboto-latin-400-normal.297d48e1b5a10c0831a9.woff2",
     "static/media/roboto-latin-400-normal.woff": "/clarence/static/media/roboto-latin-400-normal.047a7839f69b209db815.woff",
@@ -20,10 +22,12 @@
     "static/media/roboto-greek-ext-400-normal.woff": "/clarence/static/media/roboto-greek-ext-400-normal.16eb83b4a3b1ea994243.woff",
     "index.html": "/clarence/index.html",
     "main.5e8752d8.css.map": "/clarence/static/css/main.5e8752d8.css.map",
-    "main.54348350.js.map": "/clarence/static/js/main.54348350.js.map"
+    "main.3403127a.js.map": "/clarence/static/js/main.3403127a.js.map",
+    "213.9a3efbe2.chunk.js.map": "/clarence/static/js/213.9a3efbe2.chunk.js.map",
+    "732.ce040012.chunk.js.map": "/clarence/static/js/732.ce040012.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.5e8752d8.css",
-    "static/js/main.54348350.js"
+    "static/js/main.3403127a.js"
   ]
 }
