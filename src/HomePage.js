@@ -42,16 +42,45 @@ function HomePage() {
           const worksheet = workbook.Sheets[firstSheetName];
 
           // Convertir el contenido de la hoja a JSON
-          const jsonData = XLSX.utils.sheet_to_json(worksheet);
-          
-          // Extraer los nombres de los agentes
-          const agentData = jsonData.map(item => ({
-            cod: item['COD.'],
-            agentName: item['AGENTE'], // Cambia esto según tu estructura de datos
-            tipo: item['TIPO'],
-            inspNombre: item['INSP. NOMBRE'],
-            // Puedes agregar más propiedades si lo necesitas
-          })).filter(item => item.agentName); // Filtrar solo los nombres válidos
+          const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 }); // Obtener la primera fila como headers
+        
+          // La primera fila contiene los nombres de las columnas
+          const headers = jsonData[0];
+
+          // Variables para almacenar los nombres de las columnas encontradas
+          let tipoColumns = [];
+          let polFisColumns = [];
+
+          // Filtrar las columnas que empiezan por 'TIPO\n' y 'POL. FIS.'
+          headers.forEach((header, index) => {
+            if (header.startsWith('TIPO\n')) {
+              tipoColumns.push({ header, index });
+            } else if (header.startsWith('POL. FIS.')) {
+              polFisColumns.push({ header, index });
+            }
+          });
+
+          // Procesar el resto de los datos
+          const agentData = jsonData.slice(1).map(row => {
+            const tipoData = tipoColumns.reduce((acc, col) => {
+              acc[col.header] = row[col.index];
+              return acc;
+            }, {});
+            
+            const polFisData = polFisColumns.reduce((acc, col) => {
+              acc[col.header] = row[col.index];
+              return acc;
+            }, {});
+
+            return {
+              cod: row[headers.indexOf('COD.')],
+              agentName: row[headers.indexOf('AGENTE')],
+              tipo: row[headers.indexOf('TIPO')],
+              inspector: row[headers.indexOf('INSP. NOMBRE')],
+              tipoData,
+              polFisData
+            };
+          }).filter(item => item.agentName); // Filtrar solo los nombres válidos
 
           setAgentData(agentData); // Establecer los datos en el contexto
 
