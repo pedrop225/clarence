@@ -521,7 +521,7 @@ function AnalysisPage() {
             <Paper
               sx={{
                 width: '100%',
-                maxWidth: 1000,
+                maxWidth: 1100,
                 margin: '0 auto',
                 boxShadow: theme.shadows[3],
                 borderRadius: '15px',
