@@ -1,14 +1,14 @@
 // src/layouts/Layout.js
 import React from 'react';
 import { Outlet } from 'react-router-dom';
-import Sidebar from './Sidebar'; // Ruta relativa corregida
-import Box from '@mui/material/Box';
+import Sidebar from './Sidebar';
+import { Box } from '@mui/material';
 
 function Layout() {
   return (
     <>
       <Sidebar />
-      <Box sx={{ marginLeft: { sm: 0 }, padding: 2 }}>
+      <Box sx={{ padding: 3, marginLeft: { sm: 0 }, transition: 'margin-left 0.3s ease' }}>
         <Outlet />
       </Box>
     </>

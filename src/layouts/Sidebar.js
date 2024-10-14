@@ -8,11 +8,20 @@ import {
   ListItemIcon,
   ListItemText,
   Divider,
+  Typography,
   Box,
 } from '@mui/material';
-import MenuIcon from '@mui/icons-material/Menu';
-import PersonIcon from '@mui/icons-material/Person';
+import {
+  Menu as MenuIcon,
+  Home as HomeIcon,
+  BarChart as BarChartIcon,
+  People as PeopleIcon,
+  Settings as SettingsIcon,
+  Close as CloseIcon,
+} from '@mui/icons-material';
 import { Link } from 'react-router-dom';
+
+const drawerWidth = 240;
 
 function Sidebar() {
   const [open, setOpen] = React.useState(false);
@@ -20,6 +29,14 @@ function Sidebar() {
   const toggleDrawer = (state) => () => {
     setOpen(state);
   };
+
+  const menuItems = [
+    { text: 'Inicio', icon: <HomeIcon />, path: '/' },
+    { text: 'Análisis', icon: <BarChartIcon />, path: '/analysis' },
+    { text: 'Agentes Productivos', icon: <PeopleIcon />, path: '/agentes-productivos' },
+    { text: 'Configuración', icon: <SettingsIcon />, path: '/settings' },
+    // Añade más items según tus necesidades
+  ];
 
   return (
     <>
@@ -44,31 +61,62 @@ function Sidebar() {
         <MenuIcon />
       </IconButton>
 
-      {/* Barra lateral */}
+      {/* Drawer: Barra lateral */}
       <Drawer
         anchor="left"
         open={open}
         onClose={toggleDrawer(false)}
-        transitionDuration={300} // Opcional: ajustar duración de la transición
+        sx={{
+          '& .MuiDrawer-paper': {
+            width: drawerWidth,
+            boxSizing: 'border-box',
+            backgroundColor: '#fff',
+            color: '#333',
+          },
+        }}
       >
+        {/* Encabezado de la barra lateral con botón de cerrar */}
         <Box
-          sx={{ width: 250 }}
-          role="presentation"
-          onClick={toggleDrawer(false)}
-          onKeyDown={toggleDrawer(false)}
+          sx={{
+            display: 'flex',
+            alignItems: 'center',
+            padding: '16px',
+            justifyContent: 'space-between',
+          }}
         >
-          <List>
-            <ListItem button component={Link} to="/agentes-productivos">
-              <ListItemIcon>
-                <PersonIcon />
-              </ListItemIcon>
-              <ListItemText primary="Agentes Productivos" />
-            </ListItem>
-            {/* Puedes añadir más íconos y enlaces aquí */}
-          </List>
-          <Divider />
-          {/* Más elementos de la barra lateral si es necesario */}
+          <Typography variant="h6" noWrap>
+            Navegación
+          </Typography>
+          <IconButton onClick={toggleDrawer(false)}>
+            <CloseIcon />
+          </IconButton>
         </Box>
+        <Divider />
+
+        {/* Lista de opciones de menú */}
+        <List>
+          {menuItems.map((item, index) => (
+            <ListItem
+              button
+              key={index}
+              component={Link}
+              to={item.path}
+              onClick={toggleDrawer(false)}
+              sx={{
+                '&:hover': {
+                  backgroundColor: 'action.hover',
+                },
+              }}
+            >
+              <ListItemIcon sx={{ color: 'primary.main' }}>{item.icon}</ListItemIcon>
+              <ListItemText primary={item.text} />
+            </ListItem>
+          ))}
+        </List>
+
+        {/* Opciones adicionales o sección de usuario */}
+        <Box sx={{ flexGrow: 1 }} />
+        {/* Puedes añadir más elementos aquí si lo deseas */}
       </Drawer>
     </>
   );
