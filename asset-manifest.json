@@ -1,19 +1,19 @@
 {
   "files": {
     "main.css": "/clarence/static/css/main.c8e6580e.css",
-    "main.js": "/clarence/static/js/main.7281dccc.js",
+    "main.js": "/clarence/static/js/main.4097bf82.js",
     "static/js/213.9a3efbe2.chunk.js": "/clarence/static/js/213.9a3efbe2.chunk.js",
     "static/js/732.ce040012.chunk.js": "/clarence/static/js/732.ce040012.chunk.js",
     "static/media/background.jpeg": "/clarence/static/media/background.88da9d0c690b08a5c225.jpeg",
     "static/media/logo.svg": "/clarence/static/media/logo.6ce24c58023cc2f8fd88fe9d219db6c6.svg",
     "index.html": "/clarence/index.html",
     "main.c8e6580e.css.map": "/clarence/static/css/main.c8e6580e.css.map",
-    "main.7281dccc.js.map": "/clarence/static/js/main.7281dccc.js.map",
+    "main.4097bf82.js.map": "/clarence/static/js/main.4097bf82.js.map",
     "213.9a3efbe2.chunk.js.map": "/clarence/static/js/213.9a3efbe2.chunk.js.map",
     "732.ce040012.chunk.js.map": "/clarence/static/js/732.ce040012.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.c8e6580e.css",
-    "static/js/main.7281dccc.js"
+    "static/js/main.4097bf82.js"
   ]
 }
