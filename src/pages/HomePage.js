@@ -5,10 +5,10 @@ import UploadFileIcon from '@mui/icons-material/UploadFile';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import ErrorIcon from '@mui/icons-material/Error';
 import { motion } from 'framer-motion'; 
-import BackgroundImage from './background.jpeg';
-import Logo from './logo.svg';
+import BackgroundImage from '../assets/background.jpeg';
+import Logo from '../assets/logo.svg';
 import { useNavigate } from 'react-router-dom';
-import { useDataContext } from './DataContext'; // Importar el hook del contexto
+import { useDataContext } from '../context/DataContext'; // Importar el hook del contexto
 
 function HomePage() {
   const navigate = useNavigate();
@@ -88,6 +88,7 @@ function HomePage() {
           setSnackbarSeverity('success');
           navigate('/analysis'); // Navegar a la página de análisis
         } catch (error) {
+          console.log(error);
           setSnackbarMessage('Error al procesar el archivo.');
           setSnackbarSeverity('error');
         } finally {
